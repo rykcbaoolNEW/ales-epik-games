@@ -187,12 +187,6 @@ iframe#gameFrame { width:90%; height:80vh; border:none; border-radius:12px; }
 
   <!-- Main Content -->
   <main class="main-content">
-    <!-- Featured Games -->
-    <section class="featured" hidden="hidden">
-      <h2>Featured</h2>
-      <div class="featured-grid" id="featuredZones"></div>
-    </section>
-
     <!-- Controls -->
     <div class="controls">
       <input type="text" id="search" placeholder="Search games...">
@@ -203,7 +197,7 @@ iframe#gameFrame { width:90%; height:80vh; border:none; border-radius:12px; }
         <option value="popular">Sort by Popularity</option>
       </select>
 
-      <!-- Add this Dropdown to choose between gn-math and ugs -->
+      <!-- Source Selector -->
       <select id="sourceSelector">
         <option value="gn-math" selected>gn-math</option>
         <option value="ugs">ugs</option>
@@ -229,20 +223,82 @@ iframe#gameFrame { width:90%; height:80vh; border:none; border-radius:12px; }
 </div>
 
 <script>
-  // DOM References
+// DOM References
 const searchBar = document.getElementById('search');
 const filterOptions = document.getElementById('filterOptions');
 const sortOptions = document.getElementById('sortOptions');
 const container = document.getElementById('zones');
+const sourceSelector = document.getElementById('sourceSelector');
 const featuredContainer = document.getElementById('featuredZones');
 const zoneViewer = document.getElementById('viewer');
 let zoneFrame = document.getElementById('gameFrame');
 const gameTitle = document.getElementById('gameTitle');
 const closeBtn = document.getElementById('closeBtn');
-const sourceSelector = document.getElementById('sourceSelector');
 
-// Default URLs for gn-math
-let HTML_BASE = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
-let COVER_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+// URL Constants
+const HTML_BASE = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+const COVER_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+const UGS_HTML_URL = "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/games.js";
 
-//
+// State Variables
+let zones = [];
+let popularityData = {};
+
+// ------------------------------
+// Fetch Zones (for gn-math)
+async function listZones() {
+    try {
+        const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json?t="+Date.now();
+        const res = await fetch(zonesURL);
+        zones = await res.json();
+        if(zones[0]) zones[0].featured = true;
+
+        await Promise.all(["year", "month", "week", "day"].map(fetchPopularity));
+        sortZones();
+        populateFilterOptions();
+    } catch(err) {
+        console.error(err);
+        container.innerHTML = "Error loading zones: "+err;
+    }
+}
+
+// ------------------------------
+// Fetch Popularity Data (for gn-math)
+async function fetchPopularity(duration) {
+    if(!popularityData[duration]) popularityData[duration] = {};
+    try {
+        const res = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period="+duration);
+        const data = await res.json();
+        data.forEach(file => {
+            const match = file.name.match(/\/(\d+)\.html$/);
+            if (match) popularityData[duration][parseInt(match[1],10)] = file.hits?.total || 0;
+        });
+    } catch(err) {
+        popularityData[duration] = {};
+    }
+}
+
+// ------------------------------
+// Show/Hide Zones Based on Source Selection
+function updateSource() {
+    const source = sourceSelector.value;
+    if (source === "gn-math") {
+        listZones();  // Calls the function that loads gn-math zones
+    } else if (source === "ugs") {
+        container.innerHTML = "Loading UGS content...";
+        const script = document.createElement('script');
+        script.src = UGS_HTML_URL;
+        document.body.appendChild(script);
+    }
+}
+
+// Event Listener for Source Change
+sourceSelector.addEventListener('change', updateSource);
+
+// ------------------------------
+// Initial Setup
+updateSource(); // Load gn-math content by default
+</script>
+
+</body>
+</html>
