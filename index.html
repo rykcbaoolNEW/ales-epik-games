@@ -245,43 +245,4 @@ const sourceSelector = document.getElementById('sourceSelector');
 let HTML_BASE = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
 let COVER_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
 
-// ------------------------------
-// Switch between gn-math and ugs
-sourceSelector.addEventListener('change', function() {
-    if (sourceSelector.value === 'ugs') {
-        HTML_BASE = "https://cdn.jsdelivr.net/gh/ugs/html@main";  // ugs HTML URL
-        COVER_BASE = "https://cdn.jsdelivr.net/gh/ugs/covers@main";  // ugs Covers URL
-    } else {
-        HTML_BASE = "https://cdn.jsdelivr.net/gh/gn-math/html@main";  // gn-math HTML URL
-        COVER_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";  // gn-math Covers URL
-    }
-
-    // After changing the source, re-fetch the zones
-    listZones();
-});
-
-// ------------------------------
-// Fetch Zones
-async function listZones() {
-    try {
-        const zonesURL = (HTML_BASE === "https://cdn.jsdelivr.net/gh/ugs/html@main")
-            ? "https://cdn.jsdelivr.net/gh/ugs/assets@main/zones.json?t="+Date.now()
-            : "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json?t="+Date.now();
-        
-        const res = await fetch(zonesURL);
-        zones = await res.json();
-        if (zones[0]) zones[0].featured = true;
-
-        await Promise.all(["year", "month", "week", "day"].map(fetchPopularity));
-        sortZones();
-        populateFilterOptions();
-    } catch (err) {
-        console.error(err);
-        container.innerHTML = "Error loading zones: " + err;
-    }
-}
-
-// The rest of the JavaScript code remains unchanged
-</script>
-</body>
-</html>
+//
