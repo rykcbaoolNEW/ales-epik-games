@@ -248,8 +248,8 @@ let zoneFrame = document.getElementById('gameFrame');
 const gameTitle = document.getElementById('gameTitle');
 const closeBtn = document.getElementById('closeBtn');
 
-const HTML_BASE = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
-const COVER_BASE = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+const HTML_BASE = "https://cdn.jsdelivr.net/gh/freebuisness/html@main";
+const COVER_BASE = "https://cdn.jsdelivr.net/gh/freebuisness/covers@main";
 
 let zones = [];
 let popularityData = {};
@@ -264,7 +264,7 @@ function toTitleCase(str) {
 // Fetch Zones
 async function listZones() {
     try {
-        const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json?t="+Date.now();
+        const zonesURL = "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json?t="+Date.now();
         const res = await fetch(zonesURL);
         zones = await res.json();
         if(zones[0]) zones[0].featured = true;
@@ -281,7 +281,7 @@ async function listZones() {
 async function fetchPopularity(duration) {
     if(!popularityData[duration]) popularityData[duration] = {};
     try {
-        const res = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period="+duration);
+        const res = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/freebuisness/html@main/files?period="+duration);
         const data = await res.json();
         data.forEach(file=>{
             const match = file.name.match(/\/(\d+)\.html$/);
